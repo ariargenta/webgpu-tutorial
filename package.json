@@ -1,0 +1,25 @@
+{
+  "name": "project1",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode development",
+    "prod": "webpack --mode production",
+    "watch": "webpack --watch --mode production"
+  },
+  "dependencies": {
+    "@types/jquery": "^4.0.1",
+    "@webgpu/types": "^0.1.72",
+    "css-loader": "^7.1.5",
+    "jquery": "^4.0.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.6.2",
+    "ts-shader-loader": "^2.1.0",
+    "typescript": "^6.0.3",
+    "webpack": "^5.111.0",
+    "webpack-cli": "^7.2.3"
+  }
+}
