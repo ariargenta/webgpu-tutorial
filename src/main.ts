@@ -23,6 +23,7 @@ const CreateTriangle = async () => {
     });
 
     const pipeline = device.createRenderPipeline({
+        layout: "auto",
         vertex: {
             module: device.createShaderModule({
                 code: shader
@@ -45,12 +46,13 @@ const CreateTriangle = async () => {
 
     const commandEncoder = device.createCommandEncoder();
     const textureView = context.getCurrentTexture().createView();
+
     const renderPass = commandEncoder.beginRenderPass({
         colorAttachments: [{
             view: textureView,
-            clearValue: {r: 0.2, g: 0.247, b: 0.314, a: 1.0},
             loadOp: 'clear',
-            loadValue: {r: 0.2, g: 0.247, b: 0.314, a: 1.0},
+            clearValue: {r: 0.2, g: 0.247, b: 0.314, a: 1.0},
+            //loadValue: {r: 0.2, g: 0.247, b: 0.314, a: 1.0},
             storeOp: 'store'
         }]
     });

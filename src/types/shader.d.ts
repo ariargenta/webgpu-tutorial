@@ -1,3 +1,4 @@
+declare module "*.css";
 declare module '*.wgsl';
 declare module '*.glsl';
 declare module '*.vs';
