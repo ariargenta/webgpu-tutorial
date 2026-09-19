@@ -112,7 +112,7 @@ const Create3DObject = async () => {
         }]
         , depthStencilAttachment: {
             view: depthTexture.createView()
-            , deptClearValue: 1.0
+            , depthClearValue: 1.0
             , depthLoadOp: 'clear'
             , depthStoreOp: "store"
             , stencilClearValue: 0
