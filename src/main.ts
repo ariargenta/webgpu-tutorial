@@ -3,16 +3,21 @@ import {
     , CreateGPUBuffer
     , CreateTransforms
     , CreateViewProjection
+    , CreateAnimation
 } from './helper';
-
-import shader from './shader.wgsl';
+import{vec3, mat4} from 'gl-matrix';
+import{CubeData} from './vertex-data';
+import shader from './shader.wgsl'
+import $ from 'jquery';
 import "./site.css";
-import {CubeData} from './vertex-data';
-import {mat4} from 'gl-matrix';
 
-const Create3DObject = async () => {
+const createCamera = require('3d-view-controls');
+
+const Create3DObject = async (isAnimation = true) => {
     const gpu = await InitGPU();
     const device = gpu.device;
+
+    // Vertex buffers
     const cubeData = CubeData();
     const numberOfVertices = cubeData.positions.length / 3;
     const vertexBuffer = CreateGPUBuffer(device, cubeData.positions);
@@ -44,7 +49,7 @@ const Create3DObject = async () => {
                 }
             ]
         }
-        , fragment : {
+        , fragment: {
             module: device.createShaderModule({
                 code: shader
             })
@@ -57,7 +62,6 @@ const Create3DObject = async () => {
         }
         , primitive: {
             topology: "triangle-list"
-            , cullMode: 'back'
         }
         , depthStencil: {
             format: "depth24plus"
@@ -66,8 +70,10 @@ const Create3DObject = async () => {
         }
     });
 
+    // Uniform data
     const modelMatrix = mat4.create();
     const mvpMatrix = mat4.create();
+    let vMatrix = mat4.create();
     let vpMatrix = mat4.create();
 
     const vp = CreateViewProjection(
@@ -76,6 +82,11 @@ const Create3DObject = async () => {
 
     vpMatrix = vp.viewProjectionMatrix;
 
+    // Rotation and camera
+    let rotation = vec3.fromValues(0, 0, 0);
+    var camera = createCamera(gpu.canvas, vp.cameraOption);
+
+    // Uniform buffer and layout
     const uniformBuffer = device.createBuffer({
         size: 64
         , usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
@@ -83,19 +94,17 @@ const Create3DObject = async () => {
 
     const uniformBindGroup = device.createBindGroup({
         layout: pipeline.getBindGroupLayout(0)
-        , entries: [
-            {
-                binding: 0
-                , resource: {
-                    buffer: uniformBuffer
-                    , offset: 0
-                    , size: 64
-                }
+        , entries: [{
+            binding: 0
+            , resource: {
+                buffer: uniformBuffer
+                , offset: 0
+                , size: 64
             }
-        ]
+        }]
     });
 
-    const textureView = gpu.context.getCurrentTexture().createView();
+    let textureView = gpu.context.getCurrentTexture().createView();
 
     const depthTexture = device.createTexture({
         size: [gpu.canvas.width, gpu.canvas.height, 1]
@@ -113,37 +122,66 @@ const Create3DObject = async () => {
         , depthStencilAttachment: {
             view: depthTexture.createView()
             , depthClearValue: 1.0
-            , depthLoadOp: 'clear'
             , depthStoreOp: "store"
+            , depthLoadOp: 'clear'
             , stencilClearValue: 0
-            //, stencilLoadOp: 'clear'
-            //, stencilStoreOp: "store"
         }
     };
 
-    CreateTransforms(modelMatrix);
+    function draw() {
+        if(!isAnimation) {
+            if(camera.tick()) {
+                const pMatrix = vp.projectionMatrix;
 
-    mat4.multiply(mvpMatrix, vpMatrix, modelMatrix);
-    device.queue.writeBuffer(uniformBuffer, 0, mvpMatrix as unknown as ArrayBuffer);
+                vMatrix = camera.matrix;
 
-    const commandEncoder = device.createCommandEncoder();
+                mat4.multiply(vpMatrix, pMatrix, vMatrix);
+            }
+        }
 
-    const renderPass = commandEncoder.beginRenderPass(
-        renderPassDescription as GPURenderPassDescriptor
-    );
+        CreateTransforms(modelMatrix, [0, 0, 0], rotation);
+        mat4.multiply(mvpMatrix, vpMatrix, modelMatrix);
 
-    renderPass.setPipeline(pipeline);
-    renderPass.setVertexBuffer(0, vertexBuffer);
-    renderPass.setVertexBuffer(1, colorBuffer);
-    renderPass.setBindGroup(0, uniformBindGroup);
-    renderPass.draw(numberOfVertices);
-    renderPass.end();
+        device.queue.writeBuffer(
+            uniformBuffer
+            , 0
+            , mvpMatrix as unknown as ArrayBuffer
+        );
 
-    device.queue.submit([commandEncoder.finish()]);
+        textureView = gpu.context.getCurrentTexture().createView();
+        renderPassDescription.colorAttachments[0].view = textureView;
+
+        const commandEncoder = device.createCommandEncoder();
+
+        const renderPass = commandEncoder.beginRenderPass(
+            renderPassDescription as GPURenderPassDescriptor
+        );
+
+        renderPass.setPipeline(pipeline);
+        renderPass.setVertexBuffer(0, vertexBuffer);
+        renderPass.setVertexBuffer(1, colorBuffer);
+        renderPass.setBindGroup(0, uniformBindGroup);
+        renderPass.draw(numberOfVertices);
+        renderPass.end();
+
+        device.queue.submit([commandEncoder.finish()]);
+    }
+
+    CreateAnimation(draw, rotation, isAnimation);
 }
 
-Create3DObject();
+let is_animation = true;
+
+Create3DObject(is_animation);
+
+$('#id-radio input:radio').on('click', function() {
+    let val = $('input[name="options"]:checked').val();
+
+    is_animation = val === 'animation' ? true : false;
+
+    Create3DObject(is_animation);
+});
 
 window.addEventListener('resize', function() {
-    Create3DObject();
-});
+    Create3DObject(is_animation);
+})
