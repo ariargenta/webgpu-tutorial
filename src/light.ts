@@ -25,7 +25,7 @@ export interface LightInputs {
     specularColor?: vec3;
 }
 
-export const CreateShapeWithlight = async (
+export const CreateShapeWithLight = async (
     vertexData: Float32Array
     , normalData: Float32Array
     , li: LightInputs
@@ -225,8 +225,6 @@ export const CreateShapeWithlight = async (
             , depthLoadOp: 'clear'
             , depthStoreOp: "store"
             , stencilClearValue: 0
-            , stencilLoadOp: 'clear'
-            , stencilStoreOp: "store"
         }
     };
 
