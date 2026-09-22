@@ -17,24 +17,23 @@ import shader from './shader.wgsl';
 const createCamera = require('3d-view-controls');
 
 export interface LightInputs {
-    color?: vec3;
     ambientIntensity?: number;
     diffuseIntensity?: number;
     specularIntensity?: number;
     shininess?: number;
     specularColor?: vec3;
+    isTwoSideLighting?: number;
 }
 
-export const CreateShapeWithLight = async (
+export const CreateSurfaceWithColorMap = async (
     vertexData: Float32Array
     , normalData: Float32Array
+    , colorData: Float32Array
     , li: LightInputs
     , isAnimation = true
 ) => {
     const gpu = await InitGPU();
     const device = gpu.device;
-
-    li.color = li.color == undefined ? [1.0, 0.0, 0.0] : li.color;
 
     li.ambientIntensity = li.ambientIntensity == undefined
         ? 0.1 : li.ambientIntensity;
@@ -47,13 +46,17 @@ export const CreateShapeWithLight = async (
 
     li.shininess = li.shininess == undefined ? 30.0 : li.shininess;
 
-    li.specularColor = li.specularColor == undefined ?
-        [1.0, 1.0, 1.0] : li.specularColor;
+    li.specularColor = li.specularColor == undefined
+        ? [1.0, 1.0, 1.0] : li.specularColor;
+
+    li.isTwoSideLighting = li.isTwoSideLighting == undefined
+        ? 1 : li.isTwoSideLighting;
 
     // Vertex buffers
     const numberOfVertices = vertexData.length / 3;
     const vertexBuffer = CreateGPUBuffer(device, vertexData);
     const normalBuffer = CreateGPUBuffer(device, normalData);
+    const colorBuffer = CreateGPUBuffer(device, colorData);
 
     const pipeline = device.createRenderPipeline({
         layout: "auto"
@@ -75,6 +78,14 @@ export const CreateShapeWithLight = async (
                     arrayStride: 12
                     , attributes: [{
                         shaderLocation: 1
+                        , format: "float32x3"
+                        , offset: 0
+                    }]
+                }
+                , {
+                    arrayStride: 12
+                    , attributes: [{
+                        shaderLocation: 2
                         , format: "float32x3"
                         , offset: 0
                     }]
@@ -133,8 +144,6 @@ export const CreateShapeWithLight = async (
 
     var lightParams = [] as any;
 
-    lightParams.push([li.color[0], li.color[1], li.color[2], 1.0]);
-
     lightParams.push([
         li.specularColor[0]
         , li.specularColor[1]
@@ -148,6 +157,8 @@ export const CreateShapeWithLight = async (
         , li.specularIntensity
         , li.shininess
     ]);
+
+    lightParams.push([li.isTwoSideLighting, 0, 0, 0]);
 
     const lightUniformBuffer = device.createBuffer({
         size: 48
@@ -297,6 +308,7 @@ export const CreateShapeWithLight = async (
         renderPass.setPipeline(pipeline);
         renderPass.setVertexBuffer(0, vertexBuffer);
         renderPass.setVertexBuffer(1, normalBuffer);
+        renderPass.setVertexBuffer(2, colorBuffer);
         renderPass.setBindGroup(0, uniformBindGroup);
         renderPass.draw(numberOfVertices);
         renderPass.end();

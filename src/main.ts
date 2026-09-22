@@ -1,4 +1,4 @@
-import {CreateShapeWithLight, LightInputs} from './light';
+import {CreateShapeWithLight, LightInputs} from './surface';
 import {CubeData} from './vertex-data';
 import $ from 'jquery';
 import "./site.css"
