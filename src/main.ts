@@ -12,7 +12,7 @@ CreateShapeWithLight(data.positions, data.normals, li, isAnimation);
 $('#id-radio input:radio').on('click', function() {
     let val = $('input[name="options"]:checked').val();
 
-    if (val === 'animation') {
+    if(val === 'animation') {
         isAnimation = true;
     }
     else {
@@ -34,7 +34,7 @@ $('#btn-redraw').on('click', function() {
         $('#id-specular').val()?.toString()!
     );
 
-    li.shininess = parseFloat($('#id-shinines').val()?.toString()!);
+    li.shininess = parseFloat($('#id-shininess').val()?.toString()!);
 
     li.specularColor = ($('#id-scolor').val()?.toString())
         ?.split(',')

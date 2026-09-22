@@ -37,7 +37,7 @@ export const CreateShapeWithLight = async (
     li.color = li.color == undefined ? [1.0, 0.0, 0.0] : li.color;
 
     li.ambientIntensity = li.ambientIntensity == undefined
-        ? 0.2 : li.ambientIntensity;
+        ? 0.1 : li.ambientIntensity;
 
     li.diffuseIntensity = li.diffuseIntensity == undefined
         ? 0.8 : li.diffuseIntensity;
@@ -133,9 +133,14 @@ export const CreateShapeWithLight = async (
 
     var lightParams = [] as any;
 
-    lightParams.push([li.color, 1.0]);
-    lightParams.push([li.specularColor, 1.0]);
-    lightParams.push([li.specularColor, 1.0]);
+    lightParams.push([li.color[0], li.color[1], li.color[2], 1.0]);
+
+    lightParams.push([
+        li.specularColor[0]
+        , li.specularColor[1]
+        , li.specularColor[2]
+        , 1.0
+    ]);
 
     lightParams.push([
         li.ambientIntensity
@@ -204,7 +209,10 @@ export const CreateShapeWithLight = async (
         ]
     });
 
-    let textureView = gpu.context.getCurrentTexture().createView();
+    let textureView = gpu
+        .context
+        .getCurrentTexture()
+        .createView();
 
     const depthTexture = device.createTexture({
         size: [gpu.canvas.width, gpu.canvas.height, 1]
@@ -230,7 +238,7 @@ export const CreateShapeWithLight = async (
 
     function draw() {
         if(!isAnimation) {
-            if(camera.tich()) {
+            if(camera.tick()) {
                 const pMatrix = vp.projectionMatrix;
 
                 vMatrix = camera.matrix;

@@ -1,8 +1,8 @@
 import {vec3, mat4} from "gl-matrix";
 
 export const CreateAnimation = (
-    draw:any
-    , rotation:vec3 = vec3.fromValues(0, 0, 0)
+    draw: any
+    , rotation: vec3 = vec3.fromValues(0, 0, 0)
     , isAnimation = true
 ) => {
     function step() {
@@ -39,7 +39,6 @@ export const CreateTransforms = (
     mat4.fromYRotation(rotateYMat, rotation[1]);
     mat4.fromZRotation(rotateZMat, rotation[2]);
     mat4.fromScaling(scaleMat, scaling);
-
     mat4.multiply(modelMat, rotateXMat, scaleMat);
     mat4.multiply(modelMat, rotateYMat, modelMat);
     mat4.multiply(modelMat, rotateZMat, modelMat);
@@ -56,7 +55,14 @@ export const CreateViewProjection = (
     const projectionMatrix = mat4.create();
     const viewProjectionMatrix = mat4.create();
 
-    mat4.perspective(projectionMatrix, 2 * Math.PI / 5, aspectRatio, 0.1, 100.0);
+    mat4.perspective(
+        projectionMatrix
+        , 2 * Math.PI / 5
+        , aspectRatio
+        , 0.1
+        , 100.0
+    );
+
     mat4.lookAt(viewMatrix, cameraPosition, lookDirection, upDirection);
     mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
 
@@ -102,10 +108,15 @@ export const InitGPU = async () => {
         throw(`Your current browser does not support WebGPU`);
     }
 
-    const canvas = document.getElementById('canvas-webgpu') as HTMLCanvasElement;
+    const canvas = document
+        .getElementById('canvas-webgpu') as HTMLCanvasElement;
+
     const adapter = await navigator.gpu?.requestAdapter();
     const device = await adapter?.requestDevice() as GPUDevice;
-    const context = canvas.getContext('webgpu') as unknown as GPUCanvasContext;
+
+    const context = canvas
+        .getContext('webgpu') as unknown as GPUCanvasContext;
+
     const devicePixelRatio = window.devicePixelRatio || 1;
 
     canvas.width = canvas.clientWidth * devicePixelRatio;
@@ -128,10 +139,12 @@ export const CheckWebGPU = () => {
         result = `Your current browser does not support WebGPU. Make sure you're in a system with WebGPU enabled. Currently, WebGPU is supported in <a href="https://www.google.com/chrome/canary">Chrome canary <\a> with the flag "enable-unsafe-webgpu" enabled. See the <a href="https://developer.chrome.com/origintrials/#/view_trial/118219490218475521">Origin Trial</a>`;
     }
 
-    const canvas = document.getElementById('canvas-webgpu') as HTMLCanvasElement;
+    const canvas = document
+        .getElementById('canvas-webgpu') as HTMLCanvasElement;
 
     if (canvas) {
-        const div = document.getElementsByClassName('item2')[0] as HTMLDivElement;
+        const div = document
+            .getElementsByClassName('item2')[0] as HTMLDivElement;
 
         if (div) {
             canvas.width = div.offsetWidth;
@@ -140,7 +153,7 @@ export const CheckWebGPU = () => {
             function windowResize() {
                 canvas.width = div.offsetWidth;
                 canvas.height = div.offsetHeight;
-            };
+            }
 
             window.addEventListener('resize', windowResize);
         }
