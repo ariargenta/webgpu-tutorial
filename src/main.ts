@@ -1,13 +1,44 @@
-import {CreateShapeWithLight, LightInputs} from './surface';
-import {CubeData} from './vertex-data';
+import {SimpleSurfaceData} from './surface-data';
+import {Sinc} from './math-func';
+import {CreateSurfaceWithColormap, LightInputs} from './surface';
 import $ from 'jquery';
-import "./site.css"
 
-const data = CubeData();
+const CreateSurface = async (
+    li:LightInputs
+    , isAnimation = true
+    , colormapName = 'jet'
+    , scale = 2
+    , scaley = 0
+) => {
+    const data = SimpleSurfaceData(
+        Sinc
+        , -8
+        , 8
+        , -8
+        , 8
+        , 30
+        , 30
+        , scale
+        , scaley
+        , colormapName
+    );
+
+    await CreateSurfaceWithColormap(
+        data?.vertexData!
+        , data?.normalData!
+        , data?.colorData!
+        , li
+        , isAnimation
+    );
+}
+
 let li:LightInputs = {};
 let isAnimation = true;
+let colormapName = 'jet';
+let scale = 2;
+let scaley = 0.3;
 
-CreateShapeWithLight(data.positions, data.normals, li, isAnimation);
+CreateSurface(li, isAnimation, colormapName, scale, scaley);
 
 $('#id-radio input:radio').on('click', function() {
     let val = $('input[name="options"]:checked').val();
@@ -19,30 +50,28 @@ $('#id-radio input:radio').on('click', function() {
         isAnimation = false;
     }
 
-    CreateShapeWithLight(data.positions, data.normals, li, isAnimation);
+    CreateSurface(li, isAnimation, colormapName, scale, scaley);
 });
 
 $('#btn-redraw').on('click', function() {
-    li.color = ($('#id-color').val()?.toString())
-        ?.split(',')
-        .map(Number) as any;
-
-    li.ambientIntensity = parseFloat($('#id-ambient').val()?.toString()!);
-    li.diffuseIntensity = parseFloat($('#id-diffuse').val()?.toString()!);
-
-    li.specularIntensity = parseFloat(
-        $('#id-specular').val()?.toString()!
+    li.isTwoSideLighting = parseFloat(
+        $('#id-istwoside').val()?.toString()!
     );
 
-    li.shininess = parseFloat($('#id-shininess').val()?.toString()!);
+    scale = parseFloat($('#id-scale').val()?.toString()!);
+    scaley = parseFloat($('#id-scaley').val()?.toString()!);
 
-    li.specularColor = ($('#id-scolor').val()?.toString())
-        ?.split(',')
-        .map(Number) as any;
+    CreateSurface(li, isAnimation, colormapName, scale, scaley);
+});
 
-    CreateShapeWithLight(data.positions, data.normals, li, isAnimation);
+$('#id-colormap').on('change', function() {
+    const ele = this as any;
+
+    colormapName = ele.options[ele.selectedIndex].text;
+
+    CreateSurface(li, isAnimation, colormapName, scale, scaley);
 });
 
 window.addEventListener('resize', function() {
-    CreateShapeWithLight(data.positions, data.normals, li, isAnimation);
+    CreateSurface(li, isAnimation, colormapName, scale, scaley);
 })

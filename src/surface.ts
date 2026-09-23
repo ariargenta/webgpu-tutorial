@@ -25,7 +25,7 @@ export interface LightInputs {
     isTwoSideLighting?: number;
 }
 
-export const CreateSurfaceWithColorMap = async (
+export const CreateSurfaceWithColormap = async (
     vertexData: Float32Array
     , normalData: Float32Array
     , colorData: Float32Array

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title> WebGPU Step-by-step</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div style="margin-left: 20px;">
+        <div class="grid">
+            <div class="item1">
+                <h1>Sinc surface</h1><br>
+                <h2>Motion control</h2>
+                <div id="id-radio">
+                    <label>
+                        <input
+                                type="radio"
+                                name="options"
+                                value="animation"
+                                checked
+                        >
+                            Animation
+                    </label>
+                    <label style="margin-left: 30px;">
+                        <input type="radio" name="options" value="camera">
+                            Camera control
+                    </label>
+                </div>
+                <br>
+                <h2>Set parameters</h2>
+                <div class="grid1">
+                    <div class="item3">2-side light</div>
+                    <div class="item4">
+                        <input id="id-istwoside" type="text" value="1" />
+                    </div>
+                </div>
+                <div class="grid1">
+                    <div class="item3">colormap</div>
+                    <div class="item4">
+                        <select id="id-colormap">
+                            <option>jet</option>
+                            <option>autumn</option>
+                            <option>bone</option>
+                            <option>cool</option>
+                            <option>copper</option>
+                            <option>greys</option>
+                            <option>hot</option>
+                            <option>hsv</option>
+                            <option>spring</option>
+                            <option>summer</option>
+                            <option>winter</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid1">
+                    <div class="item3">scale</div>
+                    <div class="item4">
+                        <input id="id-scale" type="text" value="2"/>
+                    </div>
+                </div>
+                <div class="grid1">
+                    <div class="item3">scaley</div>
+                    <div class="item4">
+                        <input id="id-scaley" type="text" value="0.3" />
+                    </div>
+                </div>
+                <br>
+                    <button type="button" id="btn-redraw">
+                        <b>Redraw</b>
+                    </button>
+            </div>
+            <div class="item2">
+                <canvas id="canvas-webgpu" width="640" height="480"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="main.bundle.js"></script>
+</body>
+</html>
